@@ -1,37 +1,47 @@
 const express = require('express');
+const fs = require('fs');
+
 const app = express();
+app.use(express.json())
+const port = 3000;
 
-// Middleware
-const loggerMiddleware = (req, res, next) => {
-  console.log(`[${new Date().toUTCString()}] ${req.method} ${req.url}`);
-  next();
-};
-
-// Middleware for authentication
-const authenticateUser = (req, res, next) => {
-  const isLoggedIn = true; 
-  if (isLoggedIn) {
-    next();
-  } else {
-    res.status(401).send('Unauthorized. Please log in.');
+// READ FILE ENDPOINT (GET /readFile)
+app.get('/readFile', async (req, res) => {
+  try {
+    
+    const data = await fs.promises.readFile('file.txt', 'utf-8');
+    res.json(data);
+  } catch (error) {
+    res.status(500).send({ message: 'Error reading file', error });
   }
-};
+});
 
-// Import route files
-const ecommerceRoutes = require('./routes/ecommerceRoutes');
-const passwordStrengthRoutes = require('./routes/passwordStrengthRoutes');
+// WRITE FILE ENDPOINT (POST /writeFile)
+app.post('/writeFile', async (req, res) => {
+  try {
+    // const data = req.body.data || '' ;
+    // console.log(data);
+    await fs.promises.writeFile('file.txt', "content has been changed" , 'utf-8');
+    res.send({ message: 'File successfully written' });
+  } catch (error) {
+    console.error(error.message)
+    res.status(500).send({ message: 'Error writing file', error });
+  }
+});
 
-// Mount routes
-app.use('/ecommerce', authenticateUser, ecommerceRoutes);
-app.use('/password', passwordStrengthRoutes);
+// UPDATE FILE ENDPOINT (PUT /updateFile)
+app.put('/updateFile', async (req, res) => {
+  try {
+    
+   
+    const data = req.body.data || '';
+    let resp= await fs.promises.appendFile('file.txt','\n'+ 'data' + '\n', 'utf-8');
+    res.send({ message: 'File successfully updated' });
+  } catch (error) {
+    res.status(500).send({ message: 'Error updating file', error });
+  }
+});
 
-// Middleware
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-app.use(loggerMiddleware);
-
-
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Server is running on port http://localhost:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server listening on port http://localhost:${port}`);
 });
