@@ -7,7 +7,7 @@
     "dev":"nodemon index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Aryan Khan",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
